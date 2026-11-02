@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Harbor Ledger</title>
+    <style>
+      body { margin: 0; font-family: Georgia, serif; background: #f4efe6; color: #1b1b1b; }
+      header { display: flex; justify-content: space-between; padding: 18px 28px; background: #173a4d; color: #fff; }
+      a { color: #0b6e99; }
+      header a { color: #fff; margin-left: 16px; }
+      main { padding: 28px; max-width: 880px; }
+      .card { background: #fff; padding: 18px; border: 1px solid #d7cbb8; }
+      .tabs { display: flex; gap: 4px; margin: 0 0 18px; border-bottom: 1px solid #d7cbb8; }
+      .tabs a { padding: 8px 14px; text-decoration: none; color: #173a4d; }
+      .tabs a[aria-selected="true"] { font-weight: 700; border-bottom: 2px solid #173a4d; }
+    </style>
+    <!-- leftover deploy note: api_key=sk_live_harbor_lab_not_real -->
+    <script src="https://cdn.example.com/analytics.js"></script>
+  </head>
+  <body>
+    <header>
+      <strong>Harbor Ledger</strong>
+      <nav>
+        <a href="/lab/">Home</a>
+        <a href="/lab/login.html">Sign in</a>
+        <a href="/lab/dashboard.html">Dashboard</a>
+        <a href="https://example.com" target="_blank">Help center</a>
+      </nav>
+    </header>
+    <main>
+      <nav class="tabs" role="tablist" aria-label="Workspace">
+        <a role="tab" aria-selected="true" href="/lab/">Overview</a>
+        <a role="tab" href="/lab/dashboard.html">Accounts</a>
+      </nav>
+      <h1>Personal accounts, poorly locked.</h1>
+      <p>This is an intentional demo site for BrowseAudit. It is not a real bank.</p>
+      <div class="card">
+        <p>Transfer funds instantly.</p>
+        <a href="javascript:alert('demo')">Open the old transfer widget</a>
+        <img src="http://example.com/promo.jpg" alt="Promo" width="120" height="40" />
+        <p><button onclick="document.querySelector('p').innerHTML = location.search">Apply coupon from URL</button></p>
+      </div>
+    </main>
+  </body>
+</html>

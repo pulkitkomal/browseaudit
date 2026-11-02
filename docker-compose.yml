@@ -1,0 +1,10 @@
+services:
+  web:
+    build: .
+    ports:
+      - "8790:8790"
+    volumes:
+      - ./data:/app/data
+    environment:
+      PORT: 8790
+    restart: unless-stopped

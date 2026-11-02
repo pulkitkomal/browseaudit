@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BrowseAudit</title>
+    <link rel="icon" href="/assets/icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/app.css?v=10" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="brand">
+          <img src="/assets/icon.svg" width="28" height="28" alt="" />
+          <div>
+            <strong>BrowseAudit</strong>
+            <span>Live page review</span>
+          </div>
+        </div>
+        <form class="omnibox" id="nav-form">
+          <div class="nav-cluster">
+            <button type="button" id="back" title="Back" aria-label="Back">←</button>
+            <button type="button" id="forward" title="Forward" aria-label="Forward">→</button>
+            <button type="button" id="reload" title="Reload" aria-label="Reload">↻</button>
+          </div>
+          <label class="url-shell">
+            <span class="lock" id="lock"></span>
+            <input id="url" type="text" spellcheck="false" autocomplete="off" placeholder="https://example.com or /lab" />
+            <span class="status-pill" id="http-status"></span>
+          </label>
+          <button type="submit" class="go">Open</button>
+        </form>
+        <div class="top-actions">
+          <button type="button" id="open-lab">Lab</button>
+          <button type="button" id="open-settings">Settings</button>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="viewport-pane">
+          <div class="sr-only" id="page-title"></div>
+          <div class="scope-prompt" id="scope-prompt" hidden>
+            <p id="scope-prompt-text"></p>
+            <div class="scope-prompt-actions">
+              <button type="button" id="scope-add" class="go">Add and open</button>
+              <button type="button" id="scope-dismiss" class="ghost">Not now</button>
+            </div>
+          </div>
+          <div class="viewport-stage">
+            <iframe id="view" title="Browsed page" sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-modals"></iframe>
+            <div class="empty-viewport" id="empty">
+              <div class="empty-mark" aria-hidden="true">BV</div>
+              <p>Paste a URL to inspect a page.</p>
+              <p>The viewport stays empty until you open something.</p>
+            </div>
+          </div>
+          <div class="llm-banner" id="llm-banner" hidden></div>
+        </section>
+
+        <aside class="findings-pane">
+          <section class="summary-card" id="summary-card">
+            <div class="summary-top">
+              <div class="grade" id="grade" data-letter="">—</div>
+              <div class="summary-copy">
+                <div class="summary-kicker">
+                  <span id="summary-risk">No findings</span>
+                  <span id="grade-score"></span>
+                </div>
+                <div class="view-toggle" role="group" aria-label="Finding scope">
+                  <button type="button" data-view="page" id="view-page" class="active">This page</button>
+                  <button type="button" data-view="session" id="view-session">Session</button>
+                </div>
+              </div>
+              <button type="button" id="reset" class="text-btn">Clear</button>
+            </div>
+            <p class="layman" id="summary-layman" hidden></p>
+            <p id="summary-text">Open a site. An overall summary will appear here.</p>
+            <div class="summary-actions">
+              <button type="button" id="open-fixes" disabled>What to fix</button>
+              <button type="button" id="export-report" class="ghost" disabled>Export</button>
+            </div>
+            <div class="scope-bar">
+              <span>Scope</span>
+              <div class="scope-hosts" id="scope-hosts"></div>
+            </div>
+          </section>
+
+          <div class="panel-tabs" role="tablist" aria-label="Inspector">
+            <button type="button" role="tab" id="tab-findings" data-panel="findings" class="active" aria-selected="true">Issues</button>
+            <button type="button" role="tab" id="tab-quality" data-panel="quality" aria-selected="false">Quality</button>
+            <button type="button" role="tab" id="tab-inventory" data-panel="inventory" aria-selected="false">Inventory</button>
+          </div>
+
+          <div class="panel" id="panel-findings">
+            <div class="counts" id="counts" hidden></div>
+            <div class="filters" id="filters"></div>
+            <div class="findings-list" id="findings"></div>
+          </div>
+          <div class="panel" id="panel-quality" hidden>
+            <div class="quality-head">
+              <div class="quality-score" id="quality-score" data-tone="">—</div>
+              <div class="quality-copy">
+                <p id="quality-text">Open a page, then click around. Tab switches are checked for full reloads.</p>
+                <button type="button" id="open-improvements" disabled>Improvements</button>
+              </div>
+            </div>
+            <div class="filters" id="quality-filters"></div>
+            <div class="findings-list" id="quality-list"></div>
+          </div>
+          <div class="panel inventory-panel" id="panel-inventory" hidden>
+            <div id="inventory"></div>
+          </div>
+        </aside>
+      </main>
+
+      <section class="network" id="network-wrap">
+        <button type="button" class="network-toggle" id="network-toggle">Requests <span id="request-count">0</span></button>
+        <div class="network-log" id="network" hidden></div>
+      </section>
+    </div>
+
+    <dialog id="settings">
+      <form method="dialog" id="settings-form">
+        <h2>OpenAI review</h2>
+        <p>
+          Heuristic checks always run. When a key is saved on this machine, each HTML page is also sent as a
+          compact snapshot to OpenAI for a security pass and a separate usability pass. Cookie values and form
+          field values are not included.
+        </p>
+        <label>
+          API key
+          <input id="api-key" type="password" autocomplete="off" placeholder="sk-…" />
+        </label>
+        <label>
+          Model
+          <input id="model" type="text" spellcheck="false" placeholder="gpt-4o-mini" />
+        </label>
+        <label>
+          API base URL
+          <input id="base-url" type="text" spellcheck="false" placeholder="https://api.openai.com/v1" />
+        </label>
+        <p class="settings-status" id="settings-status"></p>
+        <div class="dialog-actions">
+          <button type="button" id="test-key" value="test" class="ghost">Test</button>
+          <button type="button" id="clear-key" value="clear" class="ghost">Remove key</button>
+          <button type="submit" value="save" class="go">Save</button>
+          <button value="cancel" class="ghost">Close</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="fixes">
+      <form method="dialog">
+        <h2>What to fix</h2>
+        <p class="fixes-kicker" id="fixes-risk"></p>
+        <p class="layman" id="fixes-layman"></p>
+        <p id="fixes-summary"></p>
+        <ol class="fixes-list" id="fixes-list"></ol>
+        <details id="fixes-agent-wrap" class="agent-wrap">
+          <summary>Prompt for an implementing agent</summary>
+          <pre id="fixes-agent"></pre>
+          <button type="button" id="copy-agent" class="ghost">Copy agent prompt</button>
+        </details>
+        <p class="settings-status" id="fixes-status"></p>
+        <div class="dialog-actions">
+          <button type="button" id="copy-fixes" class="ghost">Copy list</button>
+          <button value="close" class="go">Close</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="improvements">
+      <form method="dialog">
+        <h2>Improvements</h2>
+        <p class="fixes-kicker" id="improvements-risk"></p>
+        <p id="improvements-summary"></p>
+        <ol class="fixes-list" id="improvements-list"></ol>
+        <p class="settings-status" id="improvements-status"></p>
+        <div class="dialog-actions">
+          <button type="button" id="copy-improvements" class="ghost">Copy list</button>
+          <button value="close" class="go">Close</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script src="/app.js?v=10"></script>
+  </body>
+</html>

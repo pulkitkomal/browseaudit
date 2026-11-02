@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Dashboard · Harbor Ledger</title>
+    <style>
+      body { margin: 0; font-family: Georgia, serif; background: #f4efe6; }
+      main { padding: 28px; max-width: 880px; }
+      .tabs { display: flex; gap: 4px; margin: 0 0 18px; border-bottom: 1px solid #d7cbb8; }
+      .tabs a { padding: 8px 14px; text-decoration: none; color: #173a4d; }
+      .tabs a[aria-selected="true"] { font-weight: 700; border-bottom: 2px solid #173a4d; }
+    </style>
+    <script>
+      localStorage.setItem("authToken", "lab-jwt-not-real");
+      eval("1+1");
+    </script>
+  </head>
+  <body>
+    <main>
+      <nav class="tabs" role="tablist" aria-label="Workspace">
+        <a role="tab" href="/lab/">Overview</a>
+        <a role="tab" aria-selected="true" href="/lab/dashboard.html">Accounts</a>
+      </nav>
+      <h1>Accounts</h1>
+      <p>Welcome back. Session is stored in a cookie and in localStorage.</p>
+      <form method="post" action="/lab/transfer">
+        <label>To <input name="to" /></label>
+        <label>Amount <input name="amount" /></label>
+        <button type="submit">Send</button>
+      </form>
+      <p><a href="/lab/login.html">Log out</a></p>
+    </main>
+  </body>
+</html>

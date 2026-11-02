@@ -1,0 +1,13 @@
+{
+  "name": "browser-vul-testing",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Browse a website in a viewport and review live security findings.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

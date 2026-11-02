@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Sign in · Harbor Ledger</title>
+    <style>
+      body { margin: 0; font-family: Georgia, serif; background: #f4efe6; }
+      main { max-width: 360px; margin: 48px auto; background: #fff; padding: 24px; border: 1px solid #d7cbb8; }
+      label { display: block; margin: 12px 0; }
+      input { width: 100%; padding: 8px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Sign in</h1>
+      <form method="POST" action="http://127.0.0.1/login">
+        <label>Email <input name="email" type="email" autocomplete="on" /></label>
+        <label>Password <input name="password" type="password" autocomplete="on" /></label>
+        <button type="submit">Continue</button>
+      </form>
+      <p><a href="/lab/">Back home</a></p>
+    </main>
+  </body>
+</html>
