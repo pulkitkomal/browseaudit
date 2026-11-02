@@ -2,76 +2,88 @@
 
 # BrowseAudit
 
-Open a website in a local viewport. As you move between pages, BrowseAudit records
-headers, cookies, and HTML and lists likely security issues in **Issues** and
-usability problems in **Quality**.
+Browse a site in a local viewport and get a live security and quality review as
+you go.
 
-Heuristic checks always run. If you save an OpenAI key in **Settings**, each HTML
-page is also sent as a compact snapshot (no cookie values, no form field values)
-for a security pass and a separate usability pass.
+**Issues** covers headers, cookies, transport, and similar security findings
+(A–F grade). **Quality** covers broken assets, JS errors, unusable controls,
+document basics, and tab/in-app clicks that reload the whole page (Pass / Needs
+work). The two lanes stay separate so a broken image never changes the security
+grade.
 
-Use this only on sites you own or have permission to test.
+Heuristic checks always run. With an OpenAI key in **Settings**, each page also
+gets a security pass and a usability pass. **What to fix** and **Export** combine
+both lanes into an overall plan, a plain-language summary, and a copy-paste
+prompt for a coding agent.
 
-## Run
+Use this only on sites you own or have permission to test. BrowseAudit does not
+exploit pages, fill forms, submit credentials, or crawl.
+
+## Quick start
 
 ```bash
 node server.js
 ```
 
-Then open [http://127.0.0.1:8790](http://127.0.0.1:8790). The viewport starts empty;
-paste a URL or click **Open lab** for the Harbor Ledger demo.
+Open [http://127.0.0.1:8790](http://127.0.0.1:8790). The viewport starts empty —
+paste a URL, or click **Lab** for the Harbor Ledger demo.
 
-To keep it up for the tunnel:
+With Docker:
 
 ```bash
 docker compose up -d --build
 ```
 
-- Local: [http://127.0.0.1:8790](http://127.0.0.1:8790)
-- Public: [https://browseaudit.k4mik4ge.xyz](https://browseaudit.k4mik4ge.xyz) (same named Cloudflare tunnel as `analyser.k4mik4ge.xyz`)
-
-## Cloudflare Tunnel
-
-The UI is published on the existing PiTUNNEL connector as
-[https://browseaudit.k4mik4ge.xyz](https://browseaudit.k4mik4ge.xyz) → `http://localhost:8790`.
-Keep `web` listening on host port 8790; do not start a second `trycloudflare.com` quick tunnel.
+## Configuration
 
 Optional environment variables:
 
-- `PORT` (default `8790`)
-- `OPENAI_API_KEY`
-- `OPENAI_MODEL` (default `gpt-4o-mini`)
-- `OPENAI_BASE_URL` (default `https://api.openai.com/v1`)
+| Variable | Default | Notes |
+| --- | --- | --- |
+| `PORT` | `8790` | HTTP listen port |
+| `OPENAI_API_KEY` | _(empty)_ | Or paste a key in **Settings** |
+| `OPENAI_MODEL` | `gpt-4o-mini` | Chat model for review / report |
+| `OPENAI_BASE_URL` | `https://api.openai.com/v1` | OpenAI-compatible API base |
 
-Keys pasted in Settings are stored in `data/settings.json` on this machine and are
-not committed. The OpenAI key currently in use was copied from the medical-records app.
+Keys saved in Settings live in `data/settings.json` on that machine and are
+gitignored. Cookie values and form field values are never stored or sent to the
+model.
 
 ## What it reports
 
-**Issues** covers transport, security headers, cookie flags, mixed content, password
-forms on HTTP, missing CSRF-looking tokens, third-party scripts without SRI, inline
-event handlers, HTML comment secrets, and similar problems. The A–F grade is scored
-only from those security findings. It does not exploit pages or generate attack
-payloads.
+### Issues (security)
 
-**Quality** is a separate lane. It flags failed scripts, styles, fonts, and images,
-uncaught JavaScript errors, unlabeled or empty controls, placeholder links,
-document basics such as title, `lang`, and viewport, and **interaction** issues:
-tab-looking controls and in-app links that reload the whole document instead of
-updating in place. Those checks watch what you click; they do not crawl or click
-for you. Quality uses Pass / Needs work and does not change the security grade.
-BrowseAudit does not fill forms, submit credentials, or crawl extra pages.
+Transport, security headers, cookie flags, mixed content, password forms on
+HTTP, missing CSRF-looking tokens, third-party scripts without SRI, inline event
+handlers, secrets in HTML comments, and similar problems. Findings are graded
+A–F from distinct issue types; critical findings cap the grade at F.
 
-The findings panel also includes:
+### Quality (usability)
 
-- An **A–F grade** scored from distinct security issue types (critical findings cap the grade at F)
-- **This page** vs **Session** so the list, summary, and grade follow the iframe or the whole visit
-- **Scope**: the first host you open is allowlisted; other document hosts need an explicit add. The local lab is always allowed. Subresources on an in-scope page can still load.
-- **Headers & cookies** inventory (names and flags only; cookie values are not stored)
-- **What to fix** covers security and quality together, with a plain-language summary and a copyable prompt for a coding agent
-- **Export** writes a Markdown report for the current view. If an OpenAI key is saved, the plain-language statement and agent prompt are generated by the model. Cookie values are not included.
+Failed scripts, styles, fonts, and images; uncaught JavaScript errors; unlabeled
+or empty controls; placeholder links; missing `title` / `lang` / viewport; and
+**interaction** issues — tab-looking controls and in-app links that reload the
+whole document instead of updating in place. Those checks watch what *you*
+click; BrowseAudit does not click for you.
 
-Many live sites refuse to be framed. BrowseAudit loads them through a same-origin
-proxy so the viewport can still show the page, and it reviews the original headers
-before that rewrite. The public tunnel is still a proxy: share it only with people
-you trust, and keep session scope tight.
+### Overall
+
+- **This page** vs **Session** for the list, summary, and grade
+- **Scope** allowlist for document hosts (lab is always allowed)
+- **Headers & cookies** inventory (names and flags only)
+- **What to fix** — security + quality, plain-language blurb, agent prompt
+- **Export** — Markdown report; with a key, the layman statement and agent
+  prompt are written by the model
+
+## How the viewport works
+
+Many sites refuse to be framed. BrowseAudit loads them through a same-origin
+path-based proxy (`/proxy/https/host/path`), reviews the original headers, then
+rewrites the HTML so the iframe can show the page. If you expose BrowseAudit on
+a public URL, treat it as an open proxy: share carefully and keep session scope
+tight.
+
+## License
+
+Use and modify for your own authorized testing. Do not use against systems
+without permission.
